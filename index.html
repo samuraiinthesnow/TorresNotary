@@ -239,16 +239,34 @@
     function removeDoc(i) { files.splice(i, 1); renderDocs(); }
 
     function dataUrlToBlob(dataUrl, fileName) {
-      var parts = dataUrl.split(',');
-      var metadata = parts[0];
-      var base64 = parts[1];
-      var mime = metadata.match(/:(.*?);/)[1];
-      var binary = atob(base64);
-      var array = new Uint8Array(binary.length);
-      for (var i = 0; i < binary.length; i++) {
-        array[i] = binary.charCodeAt(i);
+      try {
+        var parts = dataUrl.split(',');
+        if (parts.length !== 2) {
+          throw new Error('Invalid data URL format');
+        }
+        
+        var metadata = parts[0];
+        var base64 = parts[1];
+        var mimeMatch = metadata.match(/:(.*?);/);
+        
+        if (!mimeMatch || !mimeMatch[1]) {
+          throw new Error('Could not extract MIME type from file');
+        }
+        
+        var mime = mimeMatch[1];
+        var binary = atob(base64);
+        var array = new Uint8Array(binary.length);
+        
+        for (var i = 0; i < binary.length; i++) {
+          array[i] = binary.charCodeAt(i);
+        }
+        
+        console.log('File converted:', fileName, 'MIME:', mime, 'Size:', array.length);
+        return new File([array], fileName, { type: mime });
+      } catch (e) {
+        console.error('dataUrlToBlob error:', e.message, 'File:', fileName);
+        throw new Error('Failed to process file: ' + e.message);
       }
-      return new File([array], fileName, { type: mime });
     }
 
     async function submitBooking() {
