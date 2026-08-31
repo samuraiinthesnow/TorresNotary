@@ -86,6 +86,14 @@ app.get('/health', (req, res) => {
   res.json({ ok: true, message: 'Dropbox upload service is running.' });
 });
 
+app.get('/', (req, res) => {
+  res.json({ 
+    ok: true, 
+    message: 'NotaryNow Dropbox upload service is running.',
+    frontend: 'https://samuraiinthesnow.github.io/TorresNotary/'
+  });
+});
+
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`Dropbox upload service running on http://localhost:${port}`);
